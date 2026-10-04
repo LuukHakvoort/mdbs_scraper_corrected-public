@@ -3,7 +3,7 @@
 > **This is a public-release export.** It's a sanitized, single-commit copy
 > of a private development repository — squashed history, no per-commit
 > author log carried over. It's a hard dependency of the companion
-> [`mdb_eligibility`](https://github.com/LuukHakvoort/mdb_eligibility)
+> [`mdb_eligibility`](https://github.com/LuukHakvoort/mdb_eligibility-public)
 > repo, which imports it directly; clone it as a sibling folder named
 > exactly `mdbs_scraper_corrected` (regardless of what this repo itself is
 > named) for those imports to resolve.
