@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<iati-activities generated-datetime="2025-05-16T16:07:07" version="2.02">
+  <iati-activity xml:lang="en" default-currency="EUR" last-updated-datetime="2025-05-16T16:07:07">
+    <iati-identifier>XM-DAC-918-3-20010242-84835</iati-identifier>
+    <reporting-org ref="XM-DAC-918-3" type="15" secondary-reporter="0">
+      <narrative>European Investment Bank</narrative>
+    </reporting-org>
+    <title>
+      <narrative>SOLAR PV EXAMPLE PROJECT</narrative>
+    </title>
+    <participating-org ref="40-Multilateral" role="1">
+      <narrative>EDF</narrative>
+    </participating-org>
+    <participating-org ref="40-Multilateral" type="40" role="3">
+      <narrative>EIB</narrative>
+    </participating-org>
+    <participating-org ref="70-Private Sector" type="70" role="4">
+      <narrative>EXAMPLE SOLAR MOZAMBIQUE LDA</narrative>
+    </participating-org>
+    <activity-status code="3" />
+    <activity-date iso-date="2015-04-29" type="2" />
+    <activity-date iso-date="2015-08-11" type="4" />
+    <recipient-country code="MZ" percentage=" 100.000000000" />
+    <sector vocabulary="99" code="35110000" vocabulary-uri="https://ec.europa.eu/eurostat/ramon/nomenclatures/index.cfm?TargetUrl=LST_NOM_DTL&amp;StrNom=NACE_REV2">
+      <narrative>RE : solar PV</narrative>
+    </sector>
+    <transaction ref="300531">
+      <transaction-type code="2" />
+      <transaction-date iso-date="2015-04-29" />
+      <value currency="EUR" value-date="2015-04-29">11720706</value>
+    </transaction>
+    <transaction ref="300532">
+      <transaction-type code="3" />
+      <transaction-date iso-date="2016-06-01" />
+      <value currency="EUR" value-date="2016-06-01">5000000</value>
+    </transaction>
+    <document-link url="http://www.eib.org/en/registers/all/index.htm?q=20010242" format="text/html">
+      <title>
+        <narrative>Project register entry</narrative>
+      </title>
+      <category code="A01" />
+      <language code="en" />
+    </document-link>
+  </iati-activity>
+  <iati-activity xml:lang="en" default-currency="EUR" last-updated-datetime="2025-05-16T16:07:07">
+    <iati-identifier>XM-DAC-918-3-20170086-98779</iati-identifier>
+    <reporting-org ref="XM-DAC-918-3" type="15" secondary-reporter="0">
+      <narrative>European Investment Bank</narrative>
+    </reporting-org>
+    <title>
+      <narrative>INVALID STATUS CODE EXAMPLE</narrative>
+    </title>
+    <activity-status code="0" />
+    <activity-date iso-date="2017-02-14" type="2" />
+    <recipient-country code="MZ" percentage=" 100.000000000" />
+    <sector vocabulary="99" code="36000000">
+      <narrative>Water collection, treatment and supply</narrative>
+    </sector>
+    <transaction ref="400001">
+      <transaction-type code="2" />
+      <transaction-date iso-date="2017-02-14" />
+      <value currency="EUR" value-date="2017-02-14">3000000</value>
+    </transaction>
+  </iati-activity>
+</iati-activities>

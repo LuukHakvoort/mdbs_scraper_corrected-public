@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mdbs-project-scraper"
+version = "2.0.0"
+description = "Research-oriented project data collectors for 15 multilateral development institutions"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "MDB thesis scraper contributors"}]
+dependencies = []
+
+[project.optional-dependencies]
+xlsx = ["openpyxl>=3.1,<4"]
+browser = ["playwright>=1.48,<2"]
+pdf = ["pypdf>=4,<7"]
+dev = ["openpyxl>=3.1,<4", "playwright>=1.48,<2", "pypdf>=4,<7"]
+
+[project.scripts]
+mdb-scrape = "mdbs_scraper.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mdbs_scraper*"]
+
+[tool.setuptools.package-data]
+# Every JSON registry (banks.json, year_filter.json, official_sources.json,
+# data/reference/currencies.json) and the bundled data files (CAF IATI archive,
+# IMF/FRED reference series) -- a non-editable install needs all of them.
+mdbs_scraper = ["*.json", "data/**/*"]

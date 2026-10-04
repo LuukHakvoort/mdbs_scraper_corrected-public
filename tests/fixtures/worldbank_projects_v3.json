@@ -1,0 +1,62 @@
+{
+  "rows": 1000,
+  "os": "0",
+  "page": "1",
+  "total": "4",
+  "facets": {},
+  "projects": {
+    "P100001": {
+      "id": "P100001",
+      "project_name": "Green Transport Corridor",
+      "countryshortname": "Morocco",
+      "boardapprovaldate": "2025-03-14T00:00:00Z",
+      "closingdate": "2030-12-31",
+      "status": "Active",
+      "curr_ibrd_commitment": "250000000",
+      "curr_ida_commitment": "0",
+      "idacommamt": "0",
+      "lendprojectcost": "400000000",
+      "financers": [
+        {"fincrname": "International Bank for Reconstruction and Development", "fincr_usd_amt": "250000000", "fincr_id": "IBRD", "projectfinancialtype": "World Bank Group"},
+        {"fincrname": "Global Environment Facility (GEF)", "fincr_usd_amt": "10000000", "fincr_id": "GEFU", "projectfinancialtype": "Multilateral Agency"},
+        {"fincrname": "Borrower/Recipient", "fincr_usd_amt": "140000000", "fincr_id": "BORR", "projectfinancialtype": "Local Contributor"}
+      ],
+      "major_sectors": [
+        {"major_sector": {"major_sector_name": "Transportation", "sectors": [
+          {"sector_name": "FY17 - Urban Transport", "sector_percent": "60.0"},
+          {"sector_name": "Other - Industry, Trade, and Services ", "sector_percent": "40.0"}
+        ]}}
+      ]
+    },
+    "P100002": {
+      "id": "P100002",
+      "project_name": "Rural Health Services",
+      "countryshortname": "Congo, Dem. Rep.",
+      "boardapprovaldate": "2026-06-20T00:00:00Z",
+      "status": "Active",
+      "curr_ibrd_commitment": "0",
+      "curr_ida_commitment": "80000000",
+      "idacommamt": "80000000",
+      "financers": [
+        {"fincrname": "IDA Credit", "fincr_usd_amt": "50000000", "fincr_id": "IDA", "projectfinancialtype": "IDA"},
+        {"fincrname": "IDA Grant", "fincr_usd_amt": "30000000", "fincr_id": "IDAT", "projectfinancialtype": "World Bank Group"}
+      ]
+    },
+    "P100003": {
+      "id": "P100003",
+      "project_name": "Pipeline Water Project",
+      "countryshortname": "Kenya",
+      "boardapprovaldate": "2019-05-30T00:00:00Z",
+      "status": "Pipeline",
+      "idacommamt": "20000000"
+    },
+    "P100004": {
+      "id": "P100004",
+      "project_name": "Fully Cancelled Energy Loan",
+      "countryshortname": "Peru",
+      "boardapprovaldate": "2006-02-07T00:00:00Z",
+      "status": "Closed",
+      "curr_ibrd_commitment": "0"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": "2.0",
+  "started_at": "2026-08-12T00:29:18+00:00",
+  "finished_at": "2026-08-12T00:29:25+00:00",
+  "requested_banks": [
+    "ibrd",
+    "ida"
+  ],
+  "successful_banks": [
+    "ibrd",
+    "ida"
+  ],
+  "failures": {},
+  "record_count": 20,
+  "coverage_summary_path": "outputtest_worldbank/project_counts_and_coverage.csv",
+  "outputs": {
+    "ibrd": {
+      "path": "outputtest_worldbank/ibrd_projects.csv",
+      "sha256": "09bbac4e962e7d8c4754f4009035478f2fcfb18d9866998885819d880e379e5d"
+    },
+    "ida": {
+      "path": "outputtest_worldbank/ida_projects.csv",
+      "sha256": "32e295c714dc226c3ae904be6064d2aa505bf043e5dd92d060bd2c8a19d7493e"
+    },
+    "combined": {
+      "path": "outputtest_worldbank/all_mdb_projects.csv",
+      "sha256": "2118d9d70f469905b7f98666579cc6cc825e6cc80b21adf570eb6c9529e7dda9"
+    }
+  },
+  "filters": {
+    "min_year": 2002,
+    "max_year": 2026
+  },
+  "source_overrides": {
+    "files": {},
+    "urls": {},
+    "formats": {}
+  }
+}

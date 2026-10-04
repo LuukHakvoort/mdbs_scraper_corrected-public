@@ -1,0 +1,299 @@
+Metadata-Version: 2.4
+Name: mdbs-project-scraper
+Version: 2.0.0
+Summary: Research-oriented project data collectors for 15 multilateral development institutions
+Author: MDB thesis scraper contributors
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: xlsx
+Requires-Dist: openpyxl<4,>=3.1; extra == "xlsx"
+Provides-Extra: browser
+Requires-Dist: playwright<2,>=1.48; extra == "browser"
+Provides-Extra: dev
+Requires-Dist: openpyxl<4,>=3.1; extra == "dev"
+Requires-Dist: playwright<2,>=1.48; extra == "dev"
+Dynamic: license-file
+
+# MDB project scraper — corrected research edition
+
+This is a clean replacement for the uploaded scraper. It implements **15 concrete
+institution adapters**, a single documented project schema, bank-level project
+counts, provenance, explicit missing-data notes, local snapshot support, and an
+offline test suite.
+
+The uploaded archive said “15” but configured only 14 IDs. This edition retains
+those 14 institutions, corrects `cabi` to **CABEI** (`cabi` remains an accepted
+alias), and uses the **European Investment Bank (EIB)** as the fifteenth.
+
+Which banks are active is data, not code: every institution — including which
+ones are enabled — is defined in [`mdbs_scraper/banks.json`](mdbs_scraper/banks.json),
+not hardcoded in Python. Set a bank's `"enabled"` field to `false` to exclude it
+from `--list-banks`/`--all-banks` without touching any `.py` file (the IMF entry
+ships disabled by default: its lending arrangements are country programs, not
+MDB investment projects). Re-enabling a bank only requires a concrete adapter
+class to already exist for its `id` in `mdbs_scraper/registry.py`; the CLI
+fails fast at startup if `banks.json` enables an id with no matching adapter.
+
+Per-bank scraping tuning is also data, not per-bank Python subclasses. Each
+entry in `banks.json` may set:
+
+- `default_currency`, `day_first` — parsing hints for amounts/dates.
+- `project_href_pattern`, `pagination_href_pattern`, `max_listing_pages` — how
+  an HTML portfolio adapter recognizes project links and pagination.
+- `amount_period_is_decimal` — forces a lone `.` in an amount to always mean
+  the decimal point, for sources whose amount column has a fixed decimal-digit
+  count (e.g. IDB's `14630855.000`) that would otherwise be misread as
+  European thousands grouping.
+
+A bank only needs its own file under `mdbs_scraper/adapters/` when it needs
+genuinely bespoke logic beyond these knobs (e.g. CABEI's CKAN resource
+discovery, EBRD's browser-driven download button, or the World Bank/IMF
+adapters' different API shapes).
+
+## Important research safeguards
+
+- Blank financial or conditionality fields mean **not exposed by that source**,
+  not zero or “no conditions.”
+- Original currencies are preserved. USD fields are filled only when USD is
+  explicit in the source; the code performs no undocumented FX conversion.
+- A bank financing amount is never treated as total project cost. Those concepts
+  have separate columns.
+- `project_counts_and_coverage.csv` reports the filtered, deduplicated record
+  count and field coverage for each bank.
+- Every row contains its source URL, retrieval time, and data-quality notes.
+- A requested bank that fails makes the command exit non-zero by default. The
+  failure is recorded in `manifest.json`; there is no silent empty success.
+
+Public databases do not consistently disclose disbursement, subnational location,
+or conditionality. Those variables require source-specific follow-up and, for
+conditionality in particular, often document coding rather than a project-list
+scrape. This scraper preserves that distinction instead of inventing values.
+
+## Installation in VS Code
+
+Python 3.10 or newer is required. Open this folder in VS Code and select the new
+virtual environment as the Python interpreter.
+
+### Windows PowerShell
+
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+playwright install chromium
+```
+
+### macOS or Linux
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+playwright install chromium
+```
+
+CSV, JSON, XML, HTML, and the World Bank API use only the Python standard
+library. `openpyxl` is needed for XLSX sources/output; Playwright and Chromium are
+needed for JavaScript-rendered portals and the EBRD project download control.
+
+## Quick start
+
+List the exact registry:
+
+```bash
+python main.py --list-banks
+```
+
+Start with the World Bank adapters, which do not need a browser:
+
+```bash
+python main.py --banks ibrd ida --min-year 2002 --max-year 2026 --combine
+```
+
+Run all enabled banks sequentially:
+
+```bash
+python main.py --all-banks --min-year 2002 --max-year 2026 --combine
+```
+
+Use limited parallelism only after single-bank runs work on your machine:
+
+```bash
+python main.py --all-banks --combine --parallel 3
+```
+
+Useful debugging options:
+
+```bash
+python main.py --bank aiib --max-projects 10 --no-headless --verbose
+```
+
+By default, a failure returns exit code 2. For an exploratory all-bank run where
+successful banks should still count as a successful command, add
+`--allow-partial`. Failures are still retained in the manifest.
+
+## Reproducible snapshot workflow
+
+For a thesis, keep the exact official downloads used in the analysis. Every
+adapter accepts CSV, TSV, JSON, XML/IATI, XLSX, or HTML snapshots when their
+columns expose recognizable project labels:
+
+```bash
+python main.py --bank idb \
+  --source-file idb=data/raw/idb_projects_2026-08-11.csv \
+  --include-raw
+```
+
+Multiple overrides can be supplied in one run:
+
+```bash
+python main.py --banks adb afdb ebrd \
+  --source-file adb=data/raw/adb.csv \
+  --source-file afdb=data/raw/afdb.csv \
+  --source-file ebrd=data/raw/ebrd.csv \
+  --combine
+```
+
+If a download URL or local file has no meaningful extension, declare its format:
+
+```bash
+python main.py --bank cabei --source-file cabei=data/raw/bcie_export \
+  --source-format cabei=xml
+```
+
+This mode is also how the test suite validates dynamic-site adapters without
+depending on a live website.
+
+## Supported institutions and official sources
+
+The registry lives in [`mdbs_scraper/banks.json`](mdbs_scraper/banks.json) and
+was reviewed against official pages on **11 August 2026** (`reviewed_on` in
+that file). The table below lists every defined institution; `imf` is present
+but disabled by default (see above).
+
+| ID | Institution | Default official source | Collection path | Principal caveat |
+|---|---|---|---|---|
+| `adb` | Asian Development Bank | [ADB Sovereign Projects CSV](https://data.adb.org/media/81/download) | CSV | Sovereign projects from 2005 onward |
+| `aiib` | Asian Infrastructure Investment Bank | [Project list](https://www.aiib.org/en/projects/list/index.html) | Rendered table/JSON | Detail fields vary |
+| `afdb` | African Development Bank | [MapAfrica CSV](https://mapafrica.afdb.org/en/projects.csv) | CSV | Publisher controls historical coverage |
+| `badea` | Arab Bank for Economic Development in Africa | [Interactive map](https://www.badea.org/interactive-map/) | Rendered map/JSON | Summaries and coverage vary by country |
+| `cabei` | Central American Bank for Economic Integration | [CABEI/BCIE CKAN package](https://datosabiertos.bcie.org/api/3/action/package_show?id=iati) | CKAN resource → CSV/IATI | `cabi` remains a CLI alias |
+| `caf` | Development Bank of Latin America and the Caribbean | [CAF projects](https://www.caf.com/es/proyectos/) | Paginated list + details | Spanish labels; many useful disbursement fields |
+| `cdb` | Caribbean Development Bank | [Project list](https://www.caribank.org/our-work/projects-map/list-projects?order=title&sort=asc) | List + details | CDB describes it as a selection of capital projects |
+| `ebrd` | European Bank for Reconstruction and Development | [Project portal](https://www.ebrd.com/home/what-we-do/projects.html) | Browser-generated project CSV | Requires Playwright; not the aggregate overview workbook |
+| `ibrd` | International Bank for Reconstruction and Development | [World Bank Projects API](https://search.worldbank.org/api/v2/projects) | JSON API | Filters to positive IBRD commitment |
+| `ida` | International Development Association | [World Bank Projects API](https://search.worldbank.org/api/v2/projects) | JSON API | Filters to positive IDA commitment |
+| `idb` | Inter-American Development Bank | [English project CSV](https://data.iadb.org/file/download/791d475c-0f61-411c-ae92-2242c913e73a) | CSV | Includes many operation types, not loans only |
+| `imf` *(disabled by default)* | International Monetary Fund | [IMF Lending Commitments](https://www.imf.org/external/np/fin/tad/extarr1.aspx) | Member arrangement tables/TSV | Arrangements are country programs, not MDB projects; normally SDR/XDR |
+| `isdb` | Islamic Development Bank | [Approvals portal](https://data.isdb.org/approvals) | Rendered table/JSON | JavaScript portal; snapshot fallback recommended |
+| `ndb` | New Development Bank | [All projects](https://www.ndb.int/projects/all-projects/) | Paginated list + details | Disclosure varies by project |
+| `eib` | European Investment Bank | [Financed projects](https://www.eib.org/en/projects/loans/index) | Rendered table/JSON | Signed financing contracts; may be very large |
+
+## ADB and AfDB: bot-protected downloads
+
+ADB's and AfDB's official CSV downloads sit behind Cloudflare bot-challenge
+protection that rejects plain HTTP clients (curl, Python's `urllib`) with a
+`403`, even with a realistic browser `User-Agent` — verified directly against
+both live URLs. Both banks are marked `"dynamic": true` in `banks.json` and
+their adapters (`adb.py`, `afdb.py`) route the download through a real
+headless Chromium browser (`download_via_browser` in `browser.py`) instead of
+a plain HTTP GET, since only a JS-capable browser can pass the challenge.
+
+This has **not been verified end-to-end against the live sites** — it
+requires `playwright install chromium` and a real (non-datacenter) network to
+confirm. Run `python main.py --bank adb --no-headless --verbose` (and the same
+for `afdb`) to check. If Cloudflare still blocks headless Chromium, fall back
+to the reproducible snapshot workflow above: download the CSV once in your own
+browser and rerun with `--source-file adb=path/to/file.csv`.
+
+## Per-bank quality report
+
+Every run writes `{output_dir}/reports/{bank_id}_quality.md` for each
+requested bank — including failed ones. It aggregates what the scraper
+already tracks: the same field-coverage counts as
+`project_counts_and_coverage.csv`, plus a frequency count of every distinct
+`data_quality_notes` string across that bank's records (e.g. how many rows
+got a synthetic ID, or were missing a subnational location). Failed banks get
+a report containing just the error. Use this to see at a glance which field
+is actually missing/thin for a bank, without opening the raw CSV.
+
+## Output schema
+
+All bank files use the same columns. The most important groups are:
+
+| Group | Columns | Interpretation |
+|---|---|---|
+| Identity | `bank_id`, `project_id`, `project_name` | Bank-native ID where disclosed; otherwise a labelled synthetic hash |
+| Geography | `country`, `country_code`, `province`, `location_text`, `latitude`, `longitude` | Subnational fields stay blank unless disclosed |
+| Timing | `approval_date`, `commitment_date`, `commitment_year`, `completion_date`, `duration_years` | Duration is derived only when both boundary dates are valid |
+| Classification | `status`, `sector`, `subsector`, `loan_type`, `financing_instrument` | Source terminology is preserved except explicit sovereign normalization |
+| Project cost | `total_project_cost`, `project_cost_currency`, `total_project_cost_usd` | Total operation/project cost, kept separate from bank financing |
+| Bank loan | `loan_amount`, `loan_currency`, `loan_amount_usd` | Loan/financing amount disclosed by the institution |
+| Commitment | `total_commitment`, `commitment_currency`, `total_commitment_usd` | Bank commitment; not combined cross-bank project finance |
+| Disbursement | `total_disbursement`, `disbursement_currency`, `total_disbursement_usd` | Blank if not published in the chosen source |
+| Conditions | `conditionality`, `conditionality_source_url` | Only explicit source text; no NLP inference in the default run |
+| Provenance | `project_url`, `source_url`, `source_format`, `source_updated_at`, `scraped_at`, `data_quality_notes` | Supports audit and replication |
+
+Add `--include-raw` to append `source_fields_json`, which preserves the matched
+source row or label/value fields for later remapping.
+
+## Output files
+
+A run creates:
+
+- `{bank_id}_projects.csv` (or JSON/XLSX) for every successful bank;
+- `all_mdb_projects.csv` when `--combine` is used;
+- `project_counts_and_coverage.csv`, including project count and non-missing
+  counts for the requested thesis variables;
+- `manifest.json`, including run times, filters, source overrides, failures,
+  record totals, output paths, and SHA-256 checksums.
+- `reports/{bank_id}_quality.md`, one per requested bank (see "Per-bank
+  quality report" above).
+
+CSV is UTF-8 with a byte-order mark for smooth import into Excel, Stata, and R.
+Financial numbers are emitted as plain decimal strings rather than scientific
+notation.
+
+## Conditionality: what this code can and cannot establish
+
+Project databases rarely include conditionality as a structured field. The
+adapters collect fields labelled conditions, covenants, prior actions, policy
+actions, or their Spanish equivalents when those are present. They do **not**
+infer conditions from a project title, sector, status, or generic loan terms.
+
+For defensible thesis coding, treat the output as an index for a second-stage
+document workflow: retrieve the linked program/appraisal/legal documents, define
+a coding protocol, keep page-level citations, and distinguish policy conditions
+from disbursement conditions and standard legal covenants.
+
+## Tests
+
+Run the complete offline suite:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+The suite covers money/date/loan-type normalization, CAF Spanish labels, current
+World Bank response shape, the config-driven registry (including that disabled
+banks are excluded), every concrete adapter using a local official-snapshot
+shape, and a full CLI run over all enabled banks with output counts and
+manifest checks. It deliberately does not pretend that a fixture proves a live
+website has not changed; live failures are explicit and actionable.
+
+## Source layout changes
+
+If a portal changes, the adapter raises `SourceLayoutChanged`. First inspect the
+official page and its download options. If an official export exists, save it and
+use `--source-file`; then update the relevant adapter and add a redacted fixture
+representing the new headers. Do not replace a failing official source with an
+unverified third-party API.
+
+See [VALIDATION.md](docs/VALIDATION.md) for the live-check protocol,
+[CHANGES_FROM_UPLOADED_ARCHIVE.md](docs/CHANGES_FROM_UPLOADED_ARCHIVE.md) for the
+specific corrections, and [PROBLEMS.md](docs/PROBLEMS.md) for currently open
+issues (per-bank, ready to hand to an AI assistant one topic at a time).

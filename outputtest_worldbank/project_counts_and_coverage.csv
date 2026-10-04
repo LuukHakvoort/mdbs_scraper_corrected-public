@@ -1,0 +1,3 @@
+﻿bank_id,status,error,project_count,with_commitment_year,with_loan_amount,with_total_commitment,with_total_disbursement,with_sector,with_subnational_location,with_conditionality
+ibrd,success,,10,10,10,10,0,10,0,0
+ida,success,,10,10,10,10,0,10,0,0

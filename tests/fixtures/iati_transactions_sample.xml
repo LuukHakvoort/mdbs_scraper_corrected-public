@@ -1,0 +1,58 @@
+<?xml version="1.0" ?>
+<iati-activities version="2.03" generated-datetime="2026-01-23T14:22:16Z">
+  <iati-activity default-currency="USD" hierarchy="1">
+    <iati-identifier>XM-DAC-99999-example001</iati-identifier>
+    <reporting-org ref="XM-DAC-99999" type="40">
+      <narrative>Example Development Bank</narrative>
+    </reporting-org>
+    <title>
+      <narrative>Example Rural Roads Project</narrative>
+    </title>
+    <participating-org role="1" ref="XM-DAC-99999">
+      <narrative>Example Development Bank</narrative>
+    </participating-org>
+    <participating-org role="1" ref="XM-DAC-11111">
+      <narrative>Regional Cofinancing Facility</narrative>
+    </participating-org>
+    <participating-org role="1" ref="XM-DAC-99999">
+      <narrative>Example DB - Concessional Window</narrative>
+    </participating-org>
+    <participating-org role="4" ref="EX-GOV">
+      <narrative>Ministry of Public Works</narrative>
+    </participating-org>
+    <recipient-country code="EX" />
+    <sector vocabulary="99" code="21">
+      <narrative>Transport</narrative>
+    </sector>
+    <activity-status code="2" />
+    <activity-date iso-date="2020-01-15" type="1" />
+    <activity-date iso-date="2020-03-01" type="2" />
+    <activity-date iso-date="2025-12-31" type="3" />
+    <activity-date iso-date="2025-06-30" type="4" />
+    <transaction>
+      <transaction-type code="2" />
+      <transaction-date iso-date="2020-03-01" />
+      <value currency="USD" value-date="2020-03-01">50000000</value>
+    </transaction>
+    <transaction>
+      <transaction-type code="3" />
+      <transaction-date iso-date="2021-04-10" />
+      <value currency="USD" value-date="2021-04-10">10000000</value>
+    </transaction>
+    <transaction>
+      <transaction-type code="3" />
+      <transaction-date iso-date="2022-09-05" />
+      <value currency="USD" value-date="2022-09-05">15000000</value>
+    </transaction>
+    <transaction>
+      <transaction-type code="3" />
+      <transaction-date iso-date="2023-01-20" />
+      <value currency="USD" value-date="2023-01-20">-2000000</value>
+    </transaction>
+    <transaction>
+      <transaction-type code="4" />
+      <transaction-date iso-date="2021-05-01" />
+      <value currency="USD" value-date="2021-05-01">9500000</value>
+    </transaction>
+  </iati-activity>
+</iati-activities>

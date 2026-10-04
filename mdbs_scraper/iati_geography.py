@@ -1,0 +1,756 @@
+"""IATI Country and Region code lookups, plus ISO-3 country-code derivation.
+
+IATI publishers disclose a project's geography as a bare code --
+`<recipient-country code="DZ"/>` or `<recipient-region code="298"/>` -- with
+no human-readable `<narrative>` text in the vast majority of activities seen
+in this project's IATI-sourced banks (adb/afdb/caf/isdb). These tables
+translate those codes to their official names so `country` is not left
+blank for those banks.
+
+Source: IATI's replication of its own Country and Region codelists
+(https://codelists.codeforiati.org/api/json/en/Country.json and
+.../Region.json), generated programmatically -- not hand-typed. Includes
+withdrawn/historical codes (e.g. "ZR" Zaire, "YU" Yugoslavia) alongside
+active ones, since older project data can still reference them.
+
+Separately, `iso3_country_code_from_name()` derives a uniform ISO 3166-1
+alpha-3 `country_code` for every bank from whatever free-text `country` name
+was disclosed or already derived above -- the free-text field itself is
+reported inconsistently across the 15 banks (mixed case, accents, long-form
+names, Spanish/French spellings), so it isn't a usable analysis/join key on
+its own. The alpha-2 -> alpha-3 table is sourced from a second, independent
+authoritative dataset -- IATI's own Country codelist has no alpha-3 field --
+namely the community-maintained mirror of the official ISO 3166 tables at
+https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes
+(`all/all.json`). Of the 257 codes above, 249 matched directly; the other 8
+are all withdrawn/historical IATI codes with no current ISO entry. 4 have an
+unambiguous modern successor and are hand-resolved (Burma -> Myanmar, East
+Timor -> Timor-Leste, Zaire -> Congo (the Democratic Republic of the),
+Kosovo -> the widely-used unofficial user-assigned code "XKX", which has no
+official ISO 3166-1 code at all); the remaining 4 (Netherlands Antilles,
+Neutral Zone, Serbia and Montenegro, Yugoslavia) each split into multiple
+successor states with no single correct answer and are left unmapped.
+"""
+
+from __future__ import annotations
+
+import re
+import unicodedata
+
+
+IATI_COUNTRY_CODES: dict[str, str] = {
+    "AF": "Afghanistan",
+    "AX": "Åland Islands",
+    "AL": "Albania",
+    "DZ": "Algeria",
+    "AS": "American Samoa",
+    "AD": "Andorra",
+    "AO": "Angola",
+    "AI": "Anguilla",
+    "AQ": "Antarctica",
+    "AG": "Antigua and Barbuda",
+    "AR": "Argentina",
+    "AM": "Armenia",
+    "AW": "Aruba",
+    "AU": "Australia",
+    "AT": "Austria",
+    "AZ": "Azerbaijan",
+    "BS": "Bahamas (the)",
+    "BH": "Bahrain",
+    "BD": "Bangladesh",
+    "BB": "Barbados",
+    "BY": "Belarus",
+    "BE": "Belgium",
+    "BZ": "Belize",
+    "BJ": "Benin",
+    "BM": "Bermuda",
+    "BT": "Bhutan",
+    "BO": "Bolivia (Plurinational State of)",
+    "BQ": "Bonaire, Sint Eustatius and Saba",
+    "BA": "Bosnia and Herzegovina",
+    "BW": "Botswana",
+    "BV": "Bouvet Island",
+    "BR": "Brazil",
+    "IO": "British Indian Ocean Territory (the)",
+    "BN": "Brunei Darussalam",
+    "BG": "Bulgaria",
+    "BF": "Burkina Faso",
+    "BU": "Burma",
+    "BI": "Burundi",
+    "KH": "Cambodia",
+    "CM": "Cameroon",
+    "CA": "Canada",
+    "CV": "Cabo Verde",
+    "KY": "Cayman Islands (the)",
+    "CF": "Central African Republic (the)",
+    "TD": "Chad",
+    "CL": "Chile",
+    "CN": "China",
+    "CX": "Christmas Island",
+    "CC": "Cocos (Keeling) Islands (the)",
+    "CO": "Colombia",
+    "KM": "Comoros (the)",
+    "CG": "Congo (the)",
+    "CD": "Congo (the Democratic Republic of the)",
+    "CK": "Cook Islands (the)",
+    "CR": "Costa Rica",
+    "CI": "Côte d'Ivoire",
+    "HR": "Croatia",
+    "CU": "Cuba",
+    "CW": "Curaçao",
+    "CY": "Cyprus",
+    "CZ": "Czechia",
+    "DK": "Denmark",
+    "DJ": "Djibouti",
+    "DM": "Dominica",
+    "DO": "Dominican Republic (the)",
+    "TP": "East Timor",
+    "EC": "Ecuador",
+    "EG": "Egypt",
+    "SV": "El Salvador",
+    "GQ": "Equatorial Guinea",
+    "ER": "Eritrea",
+    "EE": "Estonia",
+    "ET": "Ethiopia",
+    "FK": "Falkland Islands (the) [Malvinas]",
+    "FO": "Faroe Islands (the)",
+    "FJ": "Fiji",
+    "FI": "Finland",
+    "FR": "France",
+    "GF": "French Guiana",
+    "PF": "French Polynesia",
+    "TF": "French Southern Territories (the)",
+    "GA": "Gabon",
+    "GM": "Gambia (the)",
+    "GE": "Georgia",
+    "DE": "Germany",
+    "GH": "Ghana",
+    "GI": "Gibraltar",
+    "GR": "Greece",
+    "GL": "Greenland",
+    "GD": "Grenada",
+    "GP": "Guadeloupe",
+    "GU": "Guam",
+    "GT": "Guatemala",
+    "GG": "Guernsey",
+    "GN": "Guinea",
+    "GW": "Guinea-Bissau",
+    "GY": "Guyana",
+    "HT": "Haiti",
+    "HM": "Heard Island and McDonald Islands",
+    "VA": "Holy See (the)",
+    "HN": "Honduras",
+    "HK": "Hong Kong",
+    "HU": "Hungary",
+    "IS": "Iceland",
+    "IN": "India",
+    "ID": "Indonesia",
+    "IR": "Iran (Islamic Republic of)",
+    "IQ": "Iraq",
+    "IE": "Ireland",
+    "IM": "Isle of Man",
+    "IL": "Israel",
+    "IT": "Italy",
+    "JM": "Jamaica",
+    "JP": "Japan",
+    "JE": "Jersey",
+    "JO": "Jordan",
+    "KZ": "Kazakhstan",
+    "KE": "Kenya",
+    "KI": "Kiribati",
+    "KP": "Korea (the Democratic People's Republic of)",
+    "KR": "Korea (the Republic of)",
+    "XK": "Kosovo",
+    "KW": "Kuwait",
+    "KG": "Kyrgyzstan",
+    "LA": "Lao People's Democratic Republic (the)",
+    "LV": "Latvia",
+    "LB": "Lebanon",
+    "LS": "Lesotho",
+    "LR": "Liberia",
+    "LY": "Libya",
+    "LI": "Liechtenstein",
+    "LT": "Lithuania",
+    "LU": "Luxembourg",
+    "MO": "Macao",
+    "MK": "North Macedonia",
+    "MG": "Madagascar",
+    "MW": "Malawi",
+    "MY": "Malaysia",
+    "MV": "Maldives",
+    "ML": "Mali",
+    "MT": "Malta",
+    "MH": "Marshall Islands (the)",
+    "MQ": "Martinique",
+    "MR": "Mauritania",
+    "MU": "Mauritius",
+    "YT": "Mayotte",
+    "MX": "Mexico",
+    "FM": "Micronesia (Federated States of)",
+    "MD": "Moldova (the Republic of)",
+    "MC": "Monaco",
+    "MN": "Mongolia",
+    "ME": "Montenegro",
+    "MS": "Montserrat",
+    "MA": "Morocco",
+    "MZ": "Mozambique",
+    "MM": "Myanmar",
+    "NA": "Namibia",
+    "NR": "Nauru",
+    "NP": "Nepal",
+    "NL": "Netherlands (Kingdom of the)",
+    "AN": "Netherlands Antilles",
+    "NT": "Neutral Zone",
+    "NC": "New Caledonia",
+    "NZ": "New Zealand",
+    "NI": "Nicaragua",
+    "NE": "Niger (the)",
+    "NG": "Nigeria",
+    "NU": "Niue",
+    "NF": "Norfolk Island",
+    "MP": "Northern Mariana Islands (the)",
+    "NO": "Norway",
+    "OM": "Oman",
+    "PK": "Pakistan",
+    "PW": "Palau",
+    "PS": "Palestine, State of",
+    "PA": "Panama",
+    "PG": "Papua New Guinea",
+    "PY": "Paraguay",
+    "PE": "Peru",
+    "PH": "Philippines (the)",
+    "PN": "Pitcairn",
+    "PL": "Poland",
+    "PT": "Portugal",
+    "PR": "Puerto Rico",
+    "QA": "Qatar",
+    "RE": "Réunion",
+    "RO": "Romania",
+    "RU": "Russian Federation (the)",
+    "RW": "Rwanda",
+    "BL": "Saint Barthélemy",
+    "SH": "Saint Helena, Ascension and Tristan da Cunha",
+    "KN": "Saint Kitts and Nevis",
+    "LC": "Saint Lucia",
+    "MF": "Saint Martin (French part)",
+    "PM": "Saint Pierre and Miquelon",
+    "VC": "Saint Vincent and the Grenadines",
+    "WS": "Samoa",
+    "SM": "San Marino",
+    "ST": "Sao Tome and Principe",
+    "SA": "Saudi Arabia",
+    "SN": "Senegal",
+    "RS": "Serbia",
+    "SC": "Seychelles",
+    "SL": "Sierra Leone",
+    "SG": "Singapore",
+    "SX": "Sint Maarten (Dutch part)",
+    "SK": "Slovakia",
+    "SI": "Slovenia",
+    "SB": "Solomon Islands",
+    "SO": "Somalia",
+    "ZA": "South Africa",
+    "GS": "South Georgia and the South Sandwich Islands",
+    "SS": "South Sudan",
+    "ES": "Spain",
+    "LK": "Sri Lanka",
+    "SD": "Sudan (the)",
+    "SR": "Suriname",
+    "SJ": "Svalbard and Jan Mayen",
+    "SZ": "Eswatini",
+    "CS": "Serbia and Montenegro",
+    "SE": "Sweden",
+    "CH": "Switzerland",
+    "SY": "Syrian Arab Republic (the)",
+    "TW": "Taiwan (Province of China)",
+    "TJ": "Tajikistan",
+    "TZ": "Tanzania, the United Republic of",
+    "TH": "Thailand",
+    "TL": "Timor-Leste",
+    "TG": "Togo",
+    "TK": "Tokelau",
+    "TO": "Tonga",
+    "TT": "Trinidad and Tobago",
+    "TN": "Tunisia",
+    "TR": "Türkiye",
+    "TM": "Turkmenistan",
+    "TC": "Turks and Caicos Islands (the)",
+    "TV": "Tuvalu",
+    "UG": "Uganda",
+    "UA": "Ukraine",
+    "AE": "United Arab Emirates (the)",
+    "GB": "United Kingdom of Great Britain and Northern Ireland (the)",
+    "US": "United States of America (the)",
+    "UM": "United States Minor Outlying Islands (the)",
+    "UY": "Uruguay",
+    "UZ": "Uzbekistan",
+    "VU": "Vanuatu",
+    "VE": "Venezuela (Bolivarian Republic of)",
+    "VN": "Viet Nam",
+    "VG": "Virgin Islands (British)",
+    "VI": "Virgin Islands (U.S.)",
+    "WF": "Wallis and Futuna",
+    "EH": "Western Sahara",
+    "YE": "Yemen",
+    "YU": "Yugoslavia",
+    "ZR": "Zaire",
+    "ZM": "Zambia",
+    "ZW": "Zimbabwe",
+}
+"""ISO 3166-1 alpha-2 code -> name (IATI Country codelist)."""
+
+
+IATI_REGION_CODES: dict[str, str] = {
+    "88": "States Ex-Yugoslavia unspecified",
+    "89": "Europe, regional",
+    "189": "North of Sahara, regional",
+    "289": "South of Sahara, regional",
+    "298": "Africa, regional",
+    "380": "West Indies, regional",
+    "389": "Caribbean & Central America, regional",
+    "489": "South America, regional",
+    "498": "America, regional",
+    "589": "Middle East, regional",
+    "619": "Central Asia, regional",
+    "679": "South Asia, regional",
+    "689": "South & Central Asia, regional",
+    "789": "Far East Asia, regional",
+    "798": "Asia, regional",
+    "889": "Oceania, regional",
+    "998": "Developing countries, unspecified",
+    "1027": "Eastern Africa, regional",
+    "1028": "Middle Africa, regional",
+    "1029": "Southern Africa, regional",
+    "1030": "Western Africa, regional",
+    "1031": "Caribbean, regional",
+    "1032": "Central America, regional",
+    "1033": "Melanesia, regional",
+    "1034": "Micronesia, regional",
+    "1035": "Polynesia, regional",
+}
+"""IATI Region code (vocabulary "1") -> name."""
+
+
+IATI_ALPHA2_TO_ALPHA3: dict[str, str] = {
+    "AF": "AFG",
+    "AX": "ALA",
+    "AL": "ALB",
+    "DZ": "DZA",
+    "AS": "ASM",
+    "AD": "AND",
+    "AO": "AGO",
+    "AI": "AIA",
+    "AQ": "ATA",
+    "AG": "ATG",
+    "AR": "ARG",
+    "AM": "ARM",
+    "AW": "ABW",
+    "AU": "AUS",
+    "AT": "AUT",
+    "AZ": "AZE",
+    "BS": "BHS",
+    "BH": "BHR",
+    "BD": "BGD",
+    "BB": "BRB",
+    "BY": "BLR",
+    "BE": "BEL",
+    "BZ": "BLZ",
+    "BJ": "BEN",
+    "BM": "BMU",
+    "BT": "BTN",
+    "BO": "BOL",
+    "BQ": "BES",
+    "BA": "BIH",
+    "BW": "BWA",
+    "BV": "BVT",
+    "BR": "BRA",
+    "IO": "IOT",
+    "BN": "BRN",
+    "BG": "BGR",
+    "BF": "BFA",
+    "BU": "MMR",
+    "BI": "BDI",
+    "KH": "KHM",
+    "CM": "CMR",
+    "CA": "CAN",
+    "CV": "CPV",
+    "KY": "CYM",
+    "CF": "CAF",
+    "TD": "TCD",
+    "CL": "CHL",
+    "CN": "CHN",
+    "CX": "CXR",
+    "CC": "CCK",
+    "CO": "COL",
+    "KM": "COM",
+    "CG": "COG",
+    "CD": "COD",
+    "CK": "COK",
+    "CR": "CRI",
+    "CI": "CIV",
+    "HR": "HRV",
+    "CU": "CUB",
+    "CW": "CUW",
+    "CY": "CYP",
+    "CZ": "CZE",
+    "DK": "DNK",
+    "DJ": "DJI",
+    "DM": "DMA",
+    "DO": "DOM",
+    "TP": "TLS",
+    "EC": "ECU",
+    "EG": "EGY",
+    "SV": "SLV",
+    "GQ": "GNQ",
+    "ER": "ERI",
+    "EE": "EST",
+    "ET": "ETH",
+    "FK": "FLK",
+    "FO": "FRO",
+    "FJ": "FJI",
+    "FI": "FIN",
+    "FR": "FRA",
+    "GF": "GUF",
+    "PF": "PYF",
+    "TF": "ATF",
+    "GA": "GAB",
+    "GM": "GMB",
+    "GE": "GEO",
+    "DE": "DEU",
+    "GH": "GHA",
+    "GI": "GIB",
+    "GR": "GRC",
+    "GL": "GRL",
+    "GD": "GRD",
+    "GP": "GLP",
+    "GU": "GUM",
+    "GT": "GTM",
+    "GG": "GGY",
+    "GN": "GIN",
+    "GW": "GNB",
+    "GY": "GUY",
+    "HT": "HTI",
+    "HM": "HMD",
+    "VA": "VAT",
+    "HN": "HND",
+    "HK": "HKG",
+    "HU": "HUN",
+    "IS": "ISL",
+    "IN": "IND",
+    "ID": "IDN",
+    "IR": "IRN",
+    "IQ": "IRQ",
+    "IE": "IRL",
+    "IM": "IMN",
+    "IL": "ISR",
+    "IT": "ITA",
+    "JM": "JAM",
+    "JP": "JPN",
+    "JE": "JEY",
+    "JO": "JOR",
+    "KZ": "KAZ",
+    "KE": "KEN",
+    "KI": "KIR",
+    "KP": "PRK",
+    "KR": "KOR",
+    "XK": "XKX",
+    "KW": "KWT",
+    "KG": "KGZ",
+    "LA": "LAO",
+    "LV": "LVA",
+    "LB": "LBN",
+    "LS": "LSO",
+    "LR": "LBR",
+    "LY": "LBY",
+    "LI": "LIE",
+    "LT": "LTU",
+    "LU": "LUX",
+    "MO": "MAC",
+    "MK": "MKD",
+    "MG": "MDG",
+    "MW": "MWI",
+    "MY": "MYS",
+    "MV": "MDV",
+    "ML": "MLI",
+    "MT": "MLT",
+    "MH": "MHL",
+    "MQ": "MTQ",
+    "MR": "MRT",
+    "MU": "MUS",
+    "YT": "MYT",
+    "MX": "MEX",
+    "FM": "FSM",
+    "MD": "MDA",
+    "MC": "MCO",
+    "MN": "MNG",
+    "ME": "MNE",
+    "MS": "MSR",
+    "MA": "MAR",
+    "MZ": "MOZ",
+    "MM": "MMR",
+    "NA": "NAM",
+    "NR": "NRU",
+    "NP": "NPL",
+    "NL": "NLD",
+    # "AN": unmapped -- Netherlands Antilles has no single unambiguous successor state
+    # "NT": unmapped -- Neutral Zone has no single unambiguous successor state
+    "NC": "NCL",
+    "NZ": "NZL",
+    "NI": "NIC",
+    "NE": "NER",
+    "NG": "NGA",
+    "NU": "NIU",
+    "NF": "NFK",
+    "MP": "MNP",
+    "NO": "NOR",
+    "OM": "OMN",
+    "PK": "PAK",
+    "PW": "PLW",
+    "PS": "PSE",
+    "PA": "PAN",
+    "PG": "PNG",
+    "PY": "PRY",
+    "PE": "PER",
+    "PH": "PHL",
+    "PN": "PCN",
+    "PL": "POL",
+    "PT": "PRT",
+    "PR": "PRI",
+    "QA": "QAT",
+    "RE": "REU",
+    "RO": "ROU",
+    "RU": "RUS",
+    "RW": "RWA",
+    "BL": "BLM",
+    "SH": "SHN",
+    "KN": "KNA",
+    "LC": "LCA",
+    "MF": "MAF",
+    "PM": "SPM",
+    "VC": "VCT",
+    "WS": "WSM",
+    "SM": "SMR",
+    "ST": "STP",
+    "SA": "SAU",
+    "SN": "SEN",
+    "RS": "SRB",
+    "SC": "SYC",
+    "SL": "SLE",
+    "SG": "SGP",
+    "SX": "SXM",
+    "SK": "SVK",
+    "SI": "SVN",
+    "SB": "SLB",
+    "SO": "SOM",
+    "ZA": "ZAF",
+    "GS": "SGS",
+    "SS": "SSD",
+    "ES": "ESP",
+    "LK": "LKA",
+    "SD": "SDN",
+    "SR": "SUR",
+    "SJ": "SJM",
+    "SZ": "SWZ",
+    # "CS": unmapped -- Serbia and Montenegro has no single unambiguous successor state
+    "SE": "SWE",
+    "CH": "CHE",
+    "SY": "SYR",
+    "TW": "TWN",
+    "TJ": "TJK",
+    "TZ": "TZA",
+    "TH": "THA",
+    "TL": "TLS",
+    "TG": "TGO",
+    "TK": "TKL",
+    "TO": "TON",
+    "TT": "TTO",
+    "TN": "TUN",
+    "TR": "TUR",
+    "TM": "TKM",
+    "TC": "TCA",
+    "TV": "TUV",
+    "UG": "UGA",
+    "UA": "UKR",
+    "AE": "ARE",
+    "GB": "GBR",
+    "US": "USA",
+    "UM": "UMI",
+    "UY": "URY",
+    "UZ": "UZB",
+    "VU": "VUT",
+    "VE": "VEN",
+    "VN": "VNM",
+    "VG": "VGB",
+    "VI": "VIR",
+    "WF": "WLF",
+    "EH": "ESH",
+    "YE": "YEM",
+    # "YU": unmapped -- Yugoslavia has no single unambiguous successor state
+    "ZR": "COD",
+    "ZM": "ZMB",
+    "ZW": "ZWE",
+}
+"""ISO 3166-1 alpha-2 -> alpha-3 (source: lukes/ISO-3166-Countries-with-Regional-Codes)."""
+
+
+COUNTRY_NAME_TO_ISO2: dict[str, str] = {
+    # Keyed by normalized text (see _normalize_geo_text) -- real single
+    # countries reported under a different name, spelling, or language than
+    # IATI's own Country codelist. Curated live against the 78 distinct
+    # `country` strings in the combined output that didn't already match an
+    # IATI name directly (2026-08-25); ~30 of those 78 turned out to be
+    # IATI's own name with a trailing " (the)" dropped -- handled generically
+    # below via _NAME_TO_ALPHA2, not hand-listed here. The rest of the 78 are
+    # genuinely multi-country/regional/institutional text (e.g. "Regional"
+    # alone is 4,131 records) and deliberately have no entry -- see
+    # iso3_country_code_from_name()'s docstring.
+    "bolivia": "BO",
+    "kyrgyz republic": "KG",
+    "moldova": "MD",
+    "vietnam": "VN",
+    "tanzania": "TZ",
+    "slovak republic": "SK",
+    "venezuela": "VE",
+    "venezuela republica bolivariana de": "VE",
+    "egypt arab republic of": "EG",
+    "yemen republic of": "YE",
+    "congo democratic republic of": "CD",
+    "congo republic of": "CG",
+    "democratic republic of the congo": "CD",
+    "congo brazzaville": "CG",
+    "st lucia": "LC",
+    "st vincent and the grenadines": "VC",
+    "st kitts and nevis": "KN",
+    "russia": "RU",
+    "republica dominicana": "DO",
+    "lao pdr": "LA",
+    "guinea conakry": "GN",
+    "swaziland": "SZ",
+    "belice": "BZ",
+    "sao tome et principe": "ST",
+    "korea republic of": "KR",
+    "west bank and gaza": "PS",
+    "hong kong china": "HK",
+    "czech republic": "CZ",
+    # Added 2026-09-16 after checking every distinct country string in the
+    # scraped output and in the official portfolio files under
+    # "online pulled data/" -- each one below was a real single country that
+    # previously resolved to "", which the per-country dyad aggregation would
+    # otherwise have silently dropped (e.g. EIB's 359 "United Kingdom" rows).
+    # Plain English short names (EIB, IsDB, CDB, World Bank export):
+    "united kingdom": "GB",
+    "united states": "US",
+    "netherlands": "NL",
+    "the netherlands": "NL",
+    "turkey": "TR",
+    "turkiye": "TR",
+    "cape verde": "CV",
+    "the gambia": "GM",
+    "the bahamas": "BS",
+    "british virgin islands": "VG",
+    "micronesia": "FM",
+    "palestine": "PS",
+    "iran": "IR",
+    "syria": "SY",
+    "brunei": "BN",
+    "u a e": "AE",
+    "st maarten": "SX",
+    "st martin french part": "MF",
+    "saint vincent and grenadines": "VC",
+    "kingdom of eswatini": "SZ",
+    "sao tome e principe": "ST",
+    "lao people s democratic rep": "LA",
+    "congo democratic republic": "CD",
+    "democratic republic of congo": "CD",
+    "somalia federal republic of": "SO",
+    "timorleste": "TL",
+    # ADB's "<name>, People's Republic of" / "<city>,China" forms:
+    "china people s republic of": "CN",
+    "taipei china": "TW",
+    # World Bank "short name" forms (WDI style):
+    "korea rep": "KR",
+    "korea dem people s rep": "KP",
+    "egypt arab rep": "EG",
+    "yemen rep": "YE",
+    "congo dem rep": "CD",
+    "congo rep": "CG",
+    "venezuela rb": "VE",
+    "hong kong sar china": "HK",
+    "macao sar china": "MO",
+    "macedonia fyr": "MK",
+    "taiwan china": "TW",
+    # Deliberately NOT added: "Channel Islands" (Jersey and Guernsey are
+    # separate ISO entries), "Czechoslovakia" / "Yugoslavia, former" /
+    # "Serbia and Montenegro" (no single successor state).
+}
+"""Curated country-name alias -> ISO 3166-1 alpha-2, for real single
+countries under a name/spelling `IATI_COUNTRY_CODES` doesn't already cover."""
+
+
+def _normalize_geo_text(text: str) -> str:
+    folded = unicodedata.normalize("NFKD", text)
+    folded = "".join(char for char in folded if not unicodedata.combining(char))
+    return re.sub(r"[^a-z0-9]+", " ", folded.lower()).strip()
+
+
+def _strip_the_suffix(name: str) -> str:
+    suffix = " (the)"
+    return name[: -len(suffix)] if name.endswith(suffix) else name
+
+
+_NAME_TO_ALPHA2: dict[str, str] = {
+    _normalize_geo_text(name): code for code, name in IATI_COUNTRY_CODES.items()
+}
+_NAME_TO_ALPHA2.update({
+    # IATI's ISO "friendly" names carry a trailing definite article
+    # ("Bahamas (the)", "Sudan (the)", "Gambia (the)"...) that almost no
+    # other source repeats -- handled generically here rather than as ~15
+    # near-duplicate entries in COUNTRY_NAME_TO_ISO2.
+    _normalize_geo_text(_strip_the_suffix(name)): code
+    for code, name in IATI_COUNTRY_CODES.items()
+    if name != _strip_the_suffix(name)
+})
+
+
+def alpha3_from_alpha2(code: str) -> str:
+    """Return an alpha-2 code's ISO 3166-1 alpha-3 equivalent, or "" if unmapped."""
+    if not code:
+        return ""
+    return IATI_ALPHA2_TO_ALPHA3.get(code.strip().upper(), "")
+
+
+def iso3_country_code_from_name(name: str) -> str:
+    """Derive an ISO 3166-1 alpha-3 code from a free-text country name.
+
+    Tries, in order: an exact match against IATI's own Country codelist
+    names (also trying that name with a trailing " (the)" dropped); then
+    the hand-curated COUNTRY_NAME_TO_ISO2 alias table. Returns "" for
+    anything else, including genuinely multi-country, regional, or
+    institutional text (e.g. "Regional", "Africa, regional", "OECS
+    Countries", "BADEA") -- these are never guessed at, consistent with
+    this project's conservative-parsing conventions elsewhere.
+    """
+    if not name:
+        return ""
+    normalized = _normalize_geo_text(name)
+    code = _NAME_TO_ALPHA2.get(normalized) or COUNTRY_NAME_TO_ISO2.get(normalized)
+    return alpha3_from_alpha2(code) if code else ""
+
+
+def country_name_from_code(code: str) -> str:
+    """Return an IATI Country code's official name, or "" if unrecognized.
+
+    Never invents a name for an unrecognized code, consistent with this
+    project's conservative-parsing conventions elsewhere (see cleaning.py,
+    dac_sectors.py).
+    """
+    if not code:
+        return ""
+    return IATI_COUNTRY_CODES.get(code.strip().upper(), "")
+
+
+def region_name_from_code(code: str) -> str:
+    """Return an IATI Region code's official name, or "" if unrecognized."""
+    if not code:
+        return ""
+    return IATI_REGION_CODES.get(code.strip(), "")

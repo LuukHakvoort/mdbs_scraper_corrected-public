@@ -1,0 +1,44 @@
+{
+  "rows": 500,
+  "os": 0,
+  "page": 1,
+  "total": 2,
+  "projects": {
+    "P000001": {
+      "id": "P000001",
+      "project_name": "IBRD Clean Transport Project",
+      "countryshortname": "Exampleland",
+      "ibrdcommamt": "100,000,000",
+      "idacommamt": "0",
+      "totalcommamt": "100,000,000",
+      "lendprojectcost": "140,000,000",
+      "boardapprovaldate": "2024-06-14T00:00:00Z",
+      "closingdate": "2029-12-31T00:00:00Z",
+      "projectstatusdisplay": "Active",
+      "lendinginstr": "Investment Project Financing",
+      "sector1": {"Name": "Transport"},
+      "sector2": {"Name": "", "Percent": 0},
+      "sector_namecode": [
+        {"name": "Transport", "code": "TP"},
+        {"name": "Urban Transport", "code": "TU"}
+      ],
+      "source": ["IBRD"],
+      "url": "https://projects.worldbank.org/en/projects-operations/project-detail/P000001"
+    },
+    "P000002": {
+      "id": "P000002",
+      "project_name": "IDA Rural Health Project",
+      "countryshortname": "Sample Republic",
+      "ibrdcommamt": "0",
+      "idacommamt": "45,000,000",
+      "totalcommamt": "45,000,000",
+      "boardapprovaldate": "2023-11-02T00:00:00Z",
+      "closingdate": "2028-06-30T00:00:00Z",
+      "projectstatusdisplay": "Active",
+      "lendinginstr": "Investment Project Financing",
+      "sector1": {"Name": "Health"},
+      "source": ["IDA"],
+      "url": "https://projects.worldbank.org/en/projects-operations/project-detail/P000002"
+    }
+  }
+}

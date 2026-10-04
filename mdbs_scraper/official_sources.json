@@ -1,0 +1,235 @@
+{
+  "reviewed_on": "2026-09-16",
+  "directory": "online pulled data",
+  "roles_help": {
+    "backbone": "The official file defines which operations exist; scraped records only fill blank fields, and scraped-only records are kept only if approved after as_of or outside the file's scope (see keep_live_if).",
+    "supplement": "Adds operations missing from the backbone and fills loan terms, for the years the file covers.",
+    "extra-fields": "Fills blank fields of scraped records with the same id; never adds or removes rows.",
+    "backstop": "Checked, not merged: per-year counts, field visibility and amount totals of the output must not fall below the official file's."
+  },
+  "sources": [
+    {
+      "id": "adb_sovereign_projects_2026-01-27",
+      "bank_ids": [
+        "adb"
+      ],
+      "file": "adb-sov-projects-20260127 (2).csv",
+      "reader": "adb_sovereign",
+      "roles": [
+        "backbone",
+        "backstop"
+      ],
+      "publisher_url": "https://data.adb.org/dataset/adb-sovereign-projects",
+      "as_of": "2026-01-27",
+      "retrieved_on": "2026-09-16",
+      "sha256": "f85ade8bd0f3722a69152ac231bbf71c86f35581b971f73fbbd2740b903c0e87",
+      "unit": "project",
+      "scope": "ADB sovereign operations (loans, grants and technical assistance), one row per project number; non-sovereign operations are not in this file.",
+      "keep_live_if": "absent_means_non_sovereign",
+      "visibility_fields": [
+        "approval_date",
+        "status",
+        "loan_amount",
+        "sector",
+        "financing_instrument"
+      ],
+      "amount_check": true
+    },
+    {
+      "id": "adb_statement_of_loans_2017-12-31",
+      "bank_ids": [
+        "adb"
+      ],
+      "file": "ADB Statement of Loans as of 31 Dec 2017.csv",
+      "reader": "adb_statement_of_loans",
+      "roles": [
+        "supplement"
+      ],
+      "publisher_url": "https://data.adb.org/dataset/statement-loans",
+      "as_of": "2017-12-31",
+      "retrieved_on": "2026-09-16",
+      "sha256": "cb25595bc1d54252598ea22d4d38e53649b1303f2f97f0aa0df3b638631987a4",
+      "unit": "loan",
+      "scope": "Every ADB loan approved 1968-2017 (amounts in USD thousands), regular and concessional OCR; supplies loans that closed before the sovereign-projects file begins, plus fund and repayment terms.",
+      "visibility_fields": [],
+      "amount_check": false
+    },
+    {
+      "id": "afdb_project_list_2026-09-16",
+      "bank_ids": [
+        "afdb"
+      ],
+      "file": "AfDB data project list retrieved.csv",
+      "reader": "afdb_projects",
+      "roles": [
+        "backbone",
+        "backstop"
+      ],
+      "publisher_url": "https://mapafrica.afdb.org/",
+      "as_of": "2026-09-16",
+      "retrieved_on": "2026-09-16",
+      "sha256": "35a3dca483b8c1e21b0c9645d3a3b53e3349cfb09a71334f2362b4779e82945b",
+      "unit": "project",
+      "scope": "AfDB Group operations (ADB, ADF and blended windows) with USD commitments.",
+      "keep_live_if": "",
+      "visibility_fields": [
+        "approval_date",
+        "commitment_date",
+        "status",
+        "loan_amount",
+        "sector",
+        "total_disbursement"
+      ],
+      "amount_check": true
+    },
+    {
+      "id": "isdb_group_approvals_2026-06-30",
+      "bank_ids": [
+        "isdb"
+      ],
+      "file": "IsDB_Approvals_2026_06_30_IsDB_Group.csv",
+      "reader": "isdb_approvals",
+      "roles": [
+        "backbone",
+        "backstop"
+      ],
+      "publisher_url": "https://www.isdb.org/",
+      "as_of": "2026-06-30",
+      "retrieved_on": "2026-09-16",
+      "sha256": "8e515a8d3d90b1db69862170020015948cec2160eed64686a5cc7e702e44c307",
+      "unit": "project",
+      "scope": "IsDB approvals (OCR and other funds) with no project ids and amounts in USD millions; ITFC trade finance is not in this file.",
+      "keep_live_if": "itfc",
+      "visibility_fields": [
+        "status",
+        "loan_amount",
+        "financing_instrument"
+      ],
+      "amount_check": true
+    },
+    {
+      "id": "cabei_project_list_2026-09-16",
+      "bank_ids": [
+        "cabei"
+      ],
+      "file": "CABEI BCIE full project list.csv",
+      "reader": "adapter_snapshot",
+      "roles": [
+        "backstop"
+      ],
+      "publisher_url": "https://datosabiertos.bcie.org/dataset/iati",
+      "as_of": "2026-09-11",
+      "retrieved_on": "2026-09-16",
+      "sha256": "e78dffa9e9556c7acda13b5160d093e7b6909d3bb39afb2fa697c970d0eba7b1",
+      "unit": "project",
+      "scope": "The same 'All Projects CSV' the adapter reads (actividades-web.csv).",
+      "visibility_fields": [
+        "approval_date",
+        "commitment_date",
+        "status",
+        "loan_amount",
+        "sector",
+        "subsector",
+        "loan_type",
+        "financing_instrument"
+      ],
+      "amount_check": true
+    },
+    {
+      "id": "idb_projects_2026-09-16",
+      "bank_ids": [
+        "idb"
+      ],
+      "file": "EN_IDB_Projects_List (1).csv",
+      "reader": "adapter_snapshot",
+      "roles": [
+        "backstop"
+      ],
+      "publisher_url": "https://data.iadb.org/dataset/project-information-of-the-inter-american-development-bank-idb",
+      "as_of": "2026-09-16",
+      "retrieved_on": "2026-09-16",
+      "sha256": "523b341b095dc647cde6ad31d32f67932fed81dfaf6a8be4a418163e66c4ee60",
+      "unit": "project",
+      "scope": "The same English IDB projects dataset the adapter reads.",
+      "visibility_fields": [
+        "approval_date",
+        "commitment_date",
+        "status",
+        "loan_amount",
+        "sector",
+        "financing_instrument"
+      ],
+      "amount_check": true
+    },
+    {
+      "id": "ebrd_investments_2025-12-31",
+      "bank_ids": [
+        "ebrd"
+      ],
+      "file": "ebrd-investments-1991-2025.xlsx",
+      "reader": "adapter_snapshot",
+      "roles": [
+        "backstop"
+      ],
+      "publisher_url": "https://www.ebrd.com/home/what-we-do/projects.html",
+      "as_of": "2025-12-31",
+      "retrieved_on": "2026-09-16",
+      "sha256": "a0559d33245d2161a33db005969612ad6d748fa1aaeee37fcf2c5b143870eb5a",
+      "unit": "operation",
+      "scope": "The same 'EBRD Investments' workbook the adapter downloads (net cumulative bank investment, EUR millions).",
+      "visibility_fields": [
+        "commitment_date",
+        "loan_amount",
+        "sector"
+      ],
+      "amount_check": true
+    },
+    {
+      "id": "worldbank_projects_export_2026-09-15",
+      "bank_ids": [
+        "ibrd",
+        "ida"
+      ],
+      "file": "all World Bank (IBRD +IDA).xlsx",
+      "reader": "worldbank_export",
+      "roles": [
+        "backstop",
+        "extra-fields"
+      ],
+      "publisher_url": "https://projects.worldbank.org/en/projects-operations/projects-list",
+      "as_of": "2026-09-15",
+      "retrieved_on": "2026-09-16",
+      "sha256": "68fd121e4561e7a60dbd21e649fa83d33585848c9f443b4c2d67d81941c95a5f",
+      "unit": "project",
+      "scope": "Projects with a positive IBRD or IDA commitment that are neither Dropped nor Pipeline; the export's commitments are current (net of cancellations), so amounts are not compared.",
+      "visibility_fields": [
+        "approval_date",
+        "status",
+        "project_url"
+      ],
+      "amount_check": false
+    },
+    {
+      "id": "aiib_project_list_2026-09-16",
+      "bank_ids": [
+        "aiib"
+      ],
+      "file": "AIIB Project List.pdf",
+      "reader": "aiib_pdf",
+      "roles": [
+        "backstop"
+      ],
+      "publisher_url": "https://www.aiib.org/en/projects/list/index.html",
+      "as_of": "2026-09-16",
+      "retrieved_on": "2026-09-16",
+      "sha256": "306c059bde06ee1aab81635d2562b7fb2bc5bb77c4d0cf9a18f59fdbe083aff5",
+      "unit": "project",
+      "scope": "A browser print of the approved-projects list the adapter scrapes; read through the committed text extract in extracted/aiib_project_list.csv.",
+      "visibility_fields": [
+        "loan_amount",
+        "loan_type"
+      ],
+      "amount_check": false
+    }
+  ]
+}

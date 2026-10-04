@@ -1,0 +1,31 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+output/
+playwright-report/
+*.log
+.DS_Store
+# Virtual environments
+.venv/
+venv/
+
+# Generated scraper results
+output/
+
+# Passwords and API keys
+.env
+.env.*
+!.env.example
+
+# Browser login/session data
+cookies*.json
+storage_state*.json
+.auth/
+
+# Editor settings
+.vscode/
+
+# Manually downloaded OECD CRS bulk files (large; see README "OECD CRS")
+data/external/

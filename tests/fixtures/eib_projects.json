@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "id": "20250219",
+      "title": "SIKELIA GREEN LOAN WIND AND SOLAR PV",
+      "description": "The project will finance the construction and operation of a portfolio of four plants (three on-shore wind and one solar photovoltaic) in Italy.",
+      "primaryTags": [
+        {"label": "Italy", "subType": "countries", "type": "metadata", "value": "IT"},
+        {"label": "Energy", "subType": "sectors", "type": "metadata", "value": "1000"}
+      ],
+      "additionalInformation": ["Signed", "28/08/2026", 92000000.0, 65000000.0],
+      "startDate": null,
+      "endDate": null,
+      "url": "20250219"
+    }
+  ],
+  "itemPerPage": 1,
+  "message": "Success",
+  "pageNumber": 0,
+  "pageable": true,
+  "resultItems": 1,
+  "totalItems": 17013,
+  "valid": true
+}

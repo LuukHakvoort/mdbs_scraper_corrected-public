@@ -1,0 +1,23 @@
+{
+  "rows": 500,
+  "os": 0,
+  "page": 1,
+  "total": 1,
+  "projects": {
+    "P000003": {
+      "id": "P000003",
+      "project_name": "Actually IDA-Financed Project Tagged Source IBRD",
+      "countryshortname": "Sample Republic",
+      "ibrdcommamt": "0",
+      "idacommamt": "280,000,000",
+      "totalcommamt": "280,000,000",
+      "boardapprovaldate": "2024-01-10T00:00:00Z",
+      "closingdate": "2029-01-10T00:00:00Z",
+      "projectstatusdisplay": "Active",
+      "lendinginstr": "Investment Project Financing",
+      "sector1": {"Name": "Water Supply"},
+      "source": ["IBRD"],
+      "url": "https://projects.worldbank.org/en/projects-operations/project-detail/P000003"
+    }
+  }
+}

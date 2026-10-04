@@ -1,0 +1,443 @@
+{
+  "description": "Currency -> IMF Exchange Rates (IMF.STA:ER) series used to convert amounts to USD at the approval year's annual average rate. 'imf_area' is the IMF country/area code whose XDC_USD.PA_RT.A series quotes the currency; 'pegged_to' reuses another currency's series for units defined in it.",
+  "currencies": {
+    "AED": {
+      "imf_area": "ARE"
+    },
+    "AFN": {
+      "imf_area": "AFG"
+    },
+    "ALL": {
+      "imf_area": "ALB"
+    },
+    "AMD": {
+      "imf_area": "ARM"
+    },
+    "AOA": {
+      "imf_area": "AGO"
+    },
+    "ARS": {
+      "imf_area": "ARG"
+    },
+    "AUD": {
+      "imf_area": "AUS"
+    },
+    "AZN": {
+      "imf_area": "AZE"
+    },
+    "BAM": {
+      "imf_area": "BIH"
+    },
+    "BBD": {
+      "imf_area": "BRB"
+    },
+    "BDT": {
+      "imf_area": "BGD"
+    },
+    "BGN": {
+      "imf_area": "BGR"
+    },
+    "BHD": {
+      "imf_area": "BHR"
+    },
+    "BIF": {
+      "imf_area": "BDI"
+    },
+    "BND": {
+      "imf_area": "BRN"
+    },
+    "BOB": {
+      "imf_area": "BOL"
+    },
+    "BRL": {
+      "imf_area": "BRA"
+    },
+    "BSD": {
+      "imf_area": "BHS"
+    },
+    "BTN": {
+      "imf_area": "BTN"
+    },
+    "BWP": {
+      "imf_area": "BWA"
+    },
+    "BYN": {
+      "imf_area": "BLR"
+    },
+    "BZD": {
+      "imf_area": "BLZ"
+    },
+    "CAD": {
+      "imf_area": "CAN"
+    },
+    "CDF": {
+      "imf_area": "COD"
+    },
+    "CHF": {
+      "imf_area": "CHE"
+    },
+    "CLP": {
+      "imf_area": "CHL"
+    },
+    "CNY": {
+      "imf_area": "CHN"
+    },
+    "COP": {
+      "imf_area": "COL"
+    },
+    "CRC": {
+      "imf_area": "CRI"
+    },
+    "CVE": {
+      "imf_area": "CPV"
+    },
+    "CZK": {
+      "imf_area": "CZE"
+    },
+    "DJF": {
+      "imf_area": "DJI"
+    },
+    "DKK": {
+      "imf_area": "DNK"
+    },
+    "DOP": {
+      "imf_area": "DOM"
+    },
+    "DZD": {
+      "imf_area": "DZA"
+    },
+    "EGP": {
+      "imf_area": "EGY"
+    },
+    "ERN": {
+      "imf_area": "ERI"
+    },
+    "ETB": {
+      "imf_area": "ETH"
+    },
+    "EUR": {
+      "imf_area": "G163",
+      "note": "Euro Area aggregate series."
+    },
+    "FJD": {
+      "imf_area": "FJI"
+    },
+    "GBP": {
+      "imf_area": "GBR"
+    },
+    "GEL": {
+      "imf_area": "GEO"
+    },
+    "GHS": {
+      "imf_area": "GHA"
+    },
+    "GMD": {
+      "imf_area": "GMB"
+    },
+    "GNF": {
+      "imf_area": "GIN"
+    },
+    "GTQ": {
+      "imf_area": "GTM"
+    },
+    "GYD": {
+      "imf_area": "GUY"
+    },
+    "HKD": {
+      "imf_area": "HKG"
+    },
+    "HNL": {
+      "imf_area": "HND"
+    },
+    "HTG": {
+      "imf_area": "HTI"
+    },
+    "HUF": {
+      "imf_area": "HUN"
+    },
+    "IDR": {
+      "imf_area": "IDN"
+    },
+    "ILS": {
+      "imf_area": "ISR"
+    },
+    "INR": {
+      "imf_area": "IND"
+    },
+    "IQD": {
+      "imf_area": "IRQ"
+    },
+    "IRR": {
+      "imf_area": "IRN"
+    },
+    "ISK": {
+      "imf_area": "ISL"
+    },
+    "JMD": {
+      "imf_area": "JAM"
+    },
+    "JOD": {
+      "imf_area": "JOR"
+    },
+    "JPY": {
+      "imf_area": "JPN"
+    },
+    "KES": {
+      "imf_area": "KEN"
+    },
+    "KGS": {
+      "imf_area": "KGZ"
+    },
+    "KHR": {
+      "imf_area": "KHM"
+    },
+    "KMF": {
+      "imf_area": "COM"
+    },
+    "KRW": {
+      "imf_area": "KOR"
+    },
+    "KWD": {
+      "imf_area": "KWT"
+    },
+    "KZT": {
+      "imf_area": "KAZ"
+    },
+    "LAK": {
+      "imf_area": "LAO"
+    },
+    "LBP": {
+      "imf_area": "LBN"
+    },
+    "LKR": {
+      "imf_area": "LKA"
+    },
+    "LRD": {
+      "imf_area": "LBR"
+    },
+    "LSL": {
+      "imf_area": "LSO"
+    },
+    "LYD": {
+      "imf_area": "LBY"
+    },
+    "MAD": {
+      "imf_area": "MAR"
+    },
+    "MDL": {
+      "imf_area": "MDA"
+    },
+    "MGA": {
+      "imf_area": "MDG"
+    },
+    "MKD": {
+      "imf_area": "MKD"
+    },
+    "MMK": {
+      "imf_area": "MMR"
+    },
+    "MNT": {
+      "imf_area": "MNG"
+    },
+    "MOP": {
+      "imf_area": "MAC"
+    },
+    "MRU": {
+      "imf_area": "MRT"
+    },
+    "MUR": {
+      "imf_area": "MUS"
+    },
+    "MVR": {
+      "imf_area": "MDV"
+    },
+    "MWK": {
+      "imf_area": "MWI"
+    },
+    "MXN": {
+      "imf_area": "MEX"
+    },
+    "MYR": {
+      "imf_area": "MYS"
+    },
+    "MZN": {
+      "imf_area": "MOZ"
+    },
+    "NAD": {
+      "imf_area": "NAM"
+    },
+    "NGN": {
+      "imf_area": "NGA"
+    },
+    "NIO": {
+      "imf_area": "NIC"
+    },
+    "NOK": {
+      "imf_area": "NOR"
+    },
+    "NPR": {
+      "imf_area": "NPL"
+    },
+    "NZD": {
+      "imf_area": "NZL"
+    },
+    "OMR": {
+      "imf_area": "OMN"
+    },
+    "PAB": {
+      "imf_area": "PAN"
+    },
+    "PEN": {
+      "imf_area": "PER"
+    },
+    "PGK": {
+      "imf_area": "PNG"
+    },
+    "PHP": {
+      "imf_area": "PHL"
+    },
+    "PKR": {
+      "imf_area": "PAK"
+    },
+    "PLN": {
+      "imf_area": "POL"
+    },
+    "PYG": {
+      "imf_area": "PRY"
+    },
+    "QAR": {
+      "imf_area": "QAT"
+    },
+    "RON": {
+      "imf_area": "ROU"
+    },
+    "RSD": {
+      "imf_area": "SRB"
+    },
+    "RUB": {
+      "imf_area": "RUS"
+    },
+    "RWF": {
+      "imf_area": "RWA"
+    },
+    "SAR": {
+      "imf_area": "SAU"
+    },
+    "SBD": {
+      "imf_area": "SLB"
+    },
+    "SCR": {
+      "imf_area": "SYC"
+    },
+    "SDG": {
+      "imf_area": "SDN"
+    },
+    "SEK": {
+      "imf_area": "SWE"
+    },
+    "SGD": {
+      "imf_area": "SGP"
+    },
+    "SLE": {
+      "imf_area": "SLE"
+    },
+    "SOS": {
+      "imf_area": "SOM"
+    },
+    "SRD": {
+      "imf_area": "SUR"
+    },
+    "SSP": {
+      "imf_area": "SSD"
+    },
+    "STN": {
+      "imf_area": "STP"
+    },
+    "SZL": {
+      "imf_area": "SWZ"
+    },
+    "THB": {
+      "imf_area": "THA"
+    },
+    "TJS": {
+      "imf_area": "TJK"
+    },
+    "TMT": {
+      "imf_area": "TKM"
+    },
+    "TND": {
+      "imf_area": "TUN"
+    },
+    "TOP": {
+      "imf_area": "TON"
+    },
+    "TRY": {
+      "imf_area": "TUR"
+    },
+    "TTD": {
+      "imf_area": "TTO"
+    },
+    "TWD": {
+      "imf_area": "TWN"
+    },
+    "TZS": {
+      "imf_area": "TZA"
+    },
+    "UAH": {
+      "imf_area": "UKR"
+    },
+    "UGX": {
+      "imf_area": "UGA"
+    },
+    "UYU": {
+      "imf_area": "URY"
+    },
+    "UZS": {
+      "imf_area": "UZB"
+    },
+    "VES": {
+      "imf_area": "VEN"
+    },
+    "VND": {
+      "imf_area": "VNM"
+    },
+    "VUV": {
+      "imf_area": "VUT"
+    },
+    "WST": {
+      "imf_area": "WSM"
+    },
+    "XAF": {
+      "imf_area": "CMR",
+      "note": "CFA franc BEAC, fixed to the euro; Cameroon's series."
+    },
+    "XCD": {
+      "imf_area": "ATG",
+      "note": "East Caribbean dollar, fixed to the US dollar; Antigua and Barbuda's series."
+    },
+    "XOF": {
+      "imf_area": "SEN",
+      "note": "CFA franc BCEAO, fixed to the euro; Senegal's series."
+    },
+    "YER": {
+      "imf_area": "YEM"
+    },
+    "ZAR": {
+      "imf_area": "ZAF"
+    },
+    "ZMW": {
+      "imf_area": "ZMB"
+    },
+    "XDR": {
+      "note": "SDR: IMF USD-per-SDR series (USA.XDC_XDR), inverted to SDR per USD."
+    },
+    "XUA": {
+      "pegged_to": "XDR",
+      "note": "AfDB unit of account, defined as one SDR."
+    },
+    "ISD": {
+      "pegged_to": "XDR",
+      "note": "IsDB Islamic dinar, defined as one SDR."
+    }
+  }
+}

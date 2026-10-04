@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<iati-activities version="2.03" generated-datetime="2026-01-23T14:22:16Z">
+  <iati-activity default-currency="USD" hierarchy="1">
+    <iati-identifier>XM-DAC-46007-500436</iati-identifier>
+    <reporting-org ref="XM-DAC-46007" type="40">
+      <narrative>Banco Centroamericano de Integracion Economica</narrative>
+    </reporting-org>
+    <title>
+      <narrative>Proyecto de Transporte Ferroviario</narrative>
+    </title>
+    <description>
+      <narrative>Financiamiento para un sistema de tren rapido de pasajeros.</narrative>
+    </description>
+    <activity-status code="1"/>
+  </iati-activity>
+  <iati-activity default-currency="USD" hierarchy="1">
+    <iati-identifier>XM-DAC-46007-500437</iati-identifier>
+    <reporting-org ref="XM-DAC-46007" type="40">
+      <narrative>Banco Centroamericano de Integracion Economica</narrative>
+    </reporting-org>
+    <title>
+      <narrative>Segundo Proyecto de Ejemplo</narrative>
+    </title>
+    <description>
+      <narrative>Descripcion del segundo proyecto.</narrative>
+    </description>
+    <activity-status code="2"/>
+  </iati-activity>
+</iati-activities>

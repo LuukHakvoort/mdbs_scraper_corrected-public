@@ -1,0 +1,2 @@
+[console_scripts]
+mdb-scrape = mdbs_scraper.cli:main
